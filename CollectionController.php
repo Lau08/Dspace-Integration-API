@@ -20,8 +20,12 @@ class CollectionController extends Controller
         //return true;
     }
 
-    /* Metodos get asociados a la api de dspace */
+    /* Metodos GET asociados a la api de dspace */
 
+    /**
+     * Devuelve todas las colecciones en dspace
+     * @return bool|string
+     */
     public function actionGetColecciones()
     {
         if (Yii::$app->request->isGet) {
@@ -52,6 +56,10 @@ class CollectionController extends Controller
         }
     }
 
+    /**
+     * Devuelve una coleccion dado el id de la misma
+     * @return bool|string
+     */
     public function actionGetColeccion()
     {
         if (Yii::$app->request->isGet) {
@@ -82,6 +90,10 @@ class CollectionController extends Controller
         }
     }
 
+    /**
+     * Devuelve los items de una coleccion
+     * @return bool|string
+     */
     public function actionGetItemsDeColeccion()
     {
         if (Yii::$app->request->isGet) {
@@ -114,11 +126,14 @@ class CollectionController extends Controller
     }
 
 
-
     //------------------------------------------------------------------------------------------------------------------
 
     /* Metodos POST asociados a la api de dspace */
 
+    /**
+     * Permite la creacion de un item
+     * @return bool|string
+     */
     public function actionCreateItem()
     {
         if (Yii::$app->request->isPost) {
@@ -163,52 +178,6 @@ class CollectionController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             return $response;
-        }
-    }
-
-    public function actionBuscarColeccionPorNombre()//arreglar aun
-    {
-        if (Yii::$app->request->isPost) {
-            $body = Yii::$app->request->getRawBody();
-            $body = Json::decode($body);
-
-            $prefijo = '/rest/collections/';
-            $host = ConfiguracionDspace::find()->where("clave='host'")->one()->valor;
-            $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
-
-            $final = 'find-collection';
-            $token = $body['token'];
-            $url = $host . ':' . $puerto . $prefijo . $final;
-
-            $name = $body['name'];
-            $datos = json_encode($name);
-
-            $headers = array("Content-Type: application/json", "Accept: application/json", "rest-dspace-token: " . $token);
-
-            $curl = curl_init($url);
-            $options = array(
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $datos,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => $headers
-            );
-
-            curl_setopt_array($curl, $options);
-            $response = curl_exec($curl);
-            curl_close($curl);
-            return $response;
-        }
-    }
-
-    public function actionPrueba()//prueba borrar al terminar
-    {
-        if (Yii::$app->request->isGet) {
-            $body = Yii::$app->request->getRawBody();
-            $body = Json::decode($body);
-            $name = "nombre prueba";
-            $dat = array('name' => "$name");
-            $datos = http_build_query($dat);
-            echo $datos;
         }
     }
 
@@ -301,6 +270,10 @@ class CollectionController extends Controller
         }
     }
 
+    /**
+     * Permite eliminar un item de una coleccion
+     * @return bool|string
+     */
     public function actionDeleteItemEnColeccion()//probar en postman
     {
         if (Yii::$app->request->isDelete) {

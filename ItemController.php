@@ -21,6 +21,14 @@ class ItemController extends Controller
         //return true;
     }
 
+    /* Metodos GET asociados a la api de dspace */
+
+    //Items//
+
+    /**
+     * Devuelve todos los items
+     * @return bool|string
+     */
     public function actionGetItems()
     {
         if (Yii::$app->request->isGet) {
@@ -51,6 +59,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Devuelve un item dado el id del mismo
+     * @return bool|string
+     */
     public function actionGetItem()
     {
         if (Yii::$app->request->isGet) {
@@ -81,6 +93,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Devuelve los metadatos de un item
+     * @return bool|string
+     */
     public function actionGetItemMetadatos()
     {
         if (Yii::$app->request->isGet) {
@@ -112,8 +128,12 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Devuelve los bitstreams dentro de un item
+     * @return bool|string
+     */
     //Bitstreams son los archivos
-    public function actionGetItemBitstreams()//Devuelve los bitstreams dentro de un item
+    public function actionGetItemBitstreams()
     {
         if (Yii::$app->request->isGet) {
             $body = Yii::$app->request->getRawBody();
@@ -144,6 +164,7 @@ class ItemController extends Controller
         }
     }
 
+    //Bitstreams//
     public function actionGetBitstreams()
     {
         if (Yii::$app->request->isGet) {
@@ -172,8 +193,12 @@ class ItemController extends Controller
             curl_close($curl);
             return $response;
         }
-    }
+    }//no devuelve nada
 
+    /**
+     * Devuelve un bitstream dado el id del mismo
+     * @return bool|string
+     */
     public function actionGetBitstream()
     {
         if (Yii::$app->request->isGet) {
@@ -204,6 +229,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Devuelve las políticas de un bitstream
+     * @return bool|string
+     */
     public function actionGetPoliticasBit()
     {
         if (Yii::$app->request->isGet) {
@@ -235,6 +264,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Devuelve los datos de un bitstream
+     * @return bool|string
+     */
     //Descarga el archivo
     public function actionGetArchivo()
     {
@@ -269,16 +302,11 @@ class ItemController extends Controller
     //------------------------------------------------------------------------------------------------------------------
 
     /* Metodos POST asociados a la api de dspace */
-    public function actionMoverTemp()
-    {
-        $dirmodulo = dirname(__DIR__);
-        $carpetaTemp = $dirmodulo . '/temp_files/';
-        $file = $_FILES['path']['name'];
-        move_uploaded_file($file,$carpetaTemp);
-        $path = $carpetaTemp . basename($file);
-        return $path;
-    }
 
+    /**
+     * Permite Subir un bitstream a Dspace
+     * @return bool|string
+     */
     public function actionSubirBitstream()
     {
         if (Yii::$app->request->isPost) {
@@ -314,16 +342,6 @@ class ItemController extends Controller
             curl_close($curl);
             return $response;
         }
-    }
-
-    public function actionPrueba()
-    {
-        $dirmodulo = dirname(__DIR__);
-        $carpetaTemp = $dirmodulo . '/temp_files';
-        $file = $_FILES['path']['name'];
-        move_uploaded_file($file,$carpetaTemp . "/" . $file);
-        $path = $carpetaTemp . "/" . $file;
-        echo $path;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -365,6 +383,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Permite eliminar los datos de un Item
+     * @return bool|string
+     */
     public function actionDeleteMetadatosDeItem()//probar en postman
     {
         if (Yii::$app->request->isDelete) {
@@ -396,6 +418,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Permite eliminar un bitstream de un Item
+     * @return bool|string
+     */
     public function actionDeleteBitstreamDeItem()
     {
         if (Yii::$app->request->isDelete) {
@@ -464,6 +490,10 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Permite eliminar las políticas de un Bitstream
+     * @return bool|string
+     */
     public function actionDeleteBitstreamPolicy()//probar en postman
     {
         if (Yii::$app->request->isDelete) {

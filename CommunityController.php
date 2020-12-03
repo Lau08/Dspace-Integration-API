@@ -23,7 +23,7 @@ class CommunityController extends Controller
 
 
 
-    /* Metodos get asociados a la api de dspace */
+    /* Metodos GET asociados a la api de dspace */
 
     /**
      * Prueba la disponibilidad de la api de dspace
@@ -370,7 +370,10 @@ class CommunityController extends Controller
 
     /* Metodos PUT asociados a la api de dspace */
 
-
+    /**
+     * Permite modificar una comunidad
+     * @return bool|string
+     */
     public function actionModificarComunidad()
     {
         if (Yii::$app->request->isPut) {
