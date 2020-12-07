@@ -251,8 +251,8 @@ class CollectionController extends Controller
             $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
 
             $token = $body['token'];
-            $id = $body['id'];
-            $url = $host . ':' . $puerto . $prefijo . $id;
+            $idCol = $body['idCol'];//id de coleccion a eliminar
+            $url = $host . ':' . $puerto . $prefijo . $idCol;
 
             $headers = array("Content-Type: application/json", "Accept: application/json", "rest-dspace-token: " . $token);
 

@@ -164,6 +164,9 @@ class ItemController extends Controller
         }
     }
 
+
+
+
     //Bitstreams//
     public function actionGetBitstreams()
     {
@@ -299,12 +302,15 @@ class ItemController extends Controller
             return $response;
         }
     }
+
+
     //------------------------------------------------------------------------------------------------------------------
 
     /* Metodos POST asociados a la api de dspace */
 
+    //Items//
     /**
-     * Permite Subir un bitstream a Dspace
+     * Permite Subir un bitstream o archivo a un item ya creado
      * @return bool|string
      */
     public function actionSubirBitstream()
@@ -320,7 +326,7 @@ class ItemController extends Controller
             $id = $body['id'];
             $final = '/bitstreams';
 
-            $name = $body['name'];//nombre del archivo
+            $name = $body['name'];//nombre del archivo sin espacios
             $params = "?name=$name";
             $url = $host . ':' . $puerto . $prefijo . $id . $final . $params;
 
@@ -343,6 +349,142 @@ class ItemController extends Controller
             return $response;
         }
     }
+
+    /**
+     * Permite agregar metadatos a un Item
+     * @return bool|string
+     */
+    public function actionAddMetadatosItem()//Probar Postman
+    {
+        if (Yii::$app->request->isPost) {
+            $body = Yii::$app->request->getRawBody();
+            $body = Json::decode($body);
+
+            $prefijo = '/rest/items/';
+            $host = ConfiguracionDspace::find()->where("clave='host'")->one()->valor;
+            $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
+
+            $token = $body['token'];
+            $idItem = $body['idItem'];
+            $final = '/metadata';
+            $url = $host . ':' . $puerto . $prefijo . $idItem . $final;
+
+            $valueTitulo = $body['titulo'];
+
+            $valueDescripcion = $body['descripcion'];
+
+            $item = "\n[{\n\"key\": \"dc.title\",\n\"value\": \"$valueTitulo\"\n},
+            \n{\n\"key\": \"dc.description\",\n\"value\": \"$valueDescripcion\"\n}]\n\n";
+
+            $headers = array('Content-Type: application/json', 'Accept: application/json', "rest-dspace-token: " . $token);
+
+            $curl = curl_init($url);
+            $options = array(
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $item,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => $headers
+            );
+
+            curl_setopt_array($curl, $options);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            return $response;
+        }
+    }
+
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    /*Metodos PUT asociados a la api de dspace */
+
+    //Items//
+    /**
+     * Permite modificar los metadatos de un Item
+     * @return bool|string
+     */
+    public function actionActualizarMetadatosItem()//Probar Postman
+    {
+        if (Yii::$app->request->isPut) {
+            $body = Yii::$app->request->getRawBody();
+            $body = Json::decode($body);
+
+            $prefijo = '/rest/items/';
+            $host = ConfiguracionDspace::find()->where("clave='host'")->one()->valor;
+            $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
+
+            $token = $body['token'];
+            $idItem = $body['idItem'];
+            $final = '/metadata';
+            $url = $host . ':' . $puerto . $prefijo . $idItem . $final;
+
+            $valueTitulo = $body['titulo'];
+
+            $valueDescripcion = $body['descripcion'];
+
+            $item = "\n[{\n\"key\": \"dc.title\",\n\"value\": \"$valueTitulo\"\n},
+            \n{\n\"key\": \"dc.description\",\n\"value\": \"$valueDescripcion\"\n}]\n\n";
+
+            $headers = array('Content-Type: application/json', 'Accept: application/json', "rest-dspace-token: " . $token);
+
+            $curl = curl_init($url);
+            $options = array(
+                CURLOPT_CUSTOMREQUEST => "PUT",
+                CURLOPT_POSTFIELDS => $item,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => $headers
+            );
+
+            curl_setopt_array($curl, $options);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            return $response;
+        }
+    }
+
+
+    //Bitstreams//
+    /**
+     * Permite actualizar el archivo, subir el archivo
+     * @return bool|string
+     */
+    public function actionActualizarDatosBitstream()
+    {
+        if (Yii::$app->request->isPut) {
+            $body = $_REQUEST;
+
+            $prefijo = '/rest/bitstreams/';
+            $host = ConfiguracionDspace::find()->where("clave='host'")->one()->valor;
+            $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
+
+            $token = $body['token'];
+            $id = $body['id'];
+            $final = '/data';
+
+            $name = $body['name'];//nombre del archivo sin espacios
+            $params = "?name=$name";
+            $url = $host . ':' . $puerto . $prefijo . $id . $final . $params;
+
+            $path = $body['path'];
+            $file = new CURLFILE("$path");
+
+            $headers = array("Content-Type: application/json", 'Accept: application/json', "rest-dspace-token: " . $token);
+
+            $curl = curl_init($url);
+            $options = array(
+                CURLOPT_CUSTOMREQUEST => "PUT",
+                CURLOPT_POSTFIELDS => array('file'=> $file,'name' => $name),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => $headers
+            );
+
+            curl_setopt_array($curl, $options);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            return $response;
+        }
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
 
