@@ -22,7 +22,6 @@ class CommunityController extends Controller
     }
 
 
-
     /* Metodos GET asociados a la api de dspace */
 
     /**

@@ -304,5 +304,5 @@ class CollectionController extends Controller
             return $response;
         }
     }
-
+	
 }
