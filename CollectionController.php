@@ -162,7 +162,6 @@ class CollectionController extends Controller
                  \"value\": \"$valueDescripcion\"\n    },\n    {\n      \"key\": \"dc.description.abstract\",\n     
                   \"value\": \"$valueResumen\"\n    },\n    {\n      \"key\": \"dc.title\",\n     
                    \"value\": \"$valueTitulo\"\n    }\n]}";
-            //$datos = json_encode($item);
 
             $headers = array('Content-Type: application/json', 'Accept: application/json', "rest-dspace-token: " . $token);
 
@@ -240,7 +239,7 @@ class CollectionController extends Controller
      * Permite eliminar una coleccion
      * @return bool|string
      */
-    public function actionDeleteColeccion()//probar postman
+    public function actionDeleteColeccion()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();
@@ -274,7 +273,7 @@ class CollectionController extends Controller
      * Permite eliminar un item de una coleccion
      * @return bool|string
      */
-    public function actionDeleteItemEnColeccion()//probar en postman
+    public function actionDeleteItemEnColeccion()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();

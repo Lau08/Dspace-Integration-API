@@ -3,6 +3,7 @@
 namespace app\modules\dspace\controllers;
 
 use app\modules\dspace\models\ConfiguracionDspace;
+use app\modules\dspace\models\Item;
 use Yii;
 use yii\helpers\Json;
 use yii\web\Controller;
@@ -326,19 +327,19 @@ class ItemController extends Controller
             $id = $body['id'];
             $final = '/bitstreams';
 
-            $name = $body['name'];//nombre del archivo sin espacios
-            $params = "?name=$name";
-            $url = $host . ':' . $puerto . $prefijo . $id . $final . $params;
+            $file = $_FILES['file']['tmp_name'];//camino temporal al archivo
+            $name = $_FILES['file']['name'];//nombre original del archivo
+            $filename = Item::RemplazarCaracteres("$name");
 
-            $path = $body['path'];
-            $file = new CURLFILE("$path");
+            $params = "?name=$filename";
+            $url = $host . ':' . $puerto . $prefijo . $id . $final . $params;
 
             $headers = array("Content-Type: application/json", 'Accept: application/json', "rest-dspace-token: " . $token);
 
             $curl = curl_init($url);
             $options = array(
                 CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => array('file'=> $file,'name' => $name),
+                CURLOPT_POSTFIELDS => array('file'=> new CURLFile("$file"),'name' => $filename),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPHEADER => $headers
             );
@@ -354,7 +355,7 @@ class ItemController extends Controller
      * Permite agregar metadatos a un Item
      * @return bool|string
      */
-    public function actionAddMetadatosItem()//Probar Postman
+    public function actionAddMetadatosItem()
     {
         if (Yii::$app->request->isPost) {
             $body = Yii::$app->request->getRawBody();
@@ -369,12 +370,19 @@ class ItemController extends Controller
             $final = '/metadata';
             $url = $host . ':' . $puerto . $prefijo . $idItem . $final;
 
-            $valueTitulo = $body['titulo'];
+            $valueAutor = $body['autor'];
 
             $valueDescripcion = $body['descripcion'];
 
-            $item = "\n[{\n\"key\": \"dc.title\",\n\"value\": \"$valueTitulo\"\n},
-            \n{\n\"key\": \"dc.description\",\n\"value\": \"$valueDescripcion\"\n}]\n\n";
+            $valueResumen = $body['resumen'];
+
+            $valueTitulo = $body['titulo'];
+
+            $item = "\n[{\n\"key\": \"dc.contributor.author\",\n      
+                \"value\": \"$valueAutor\"\n}   ,\n  {  \n      \"key\": \"dc.description\",\n     
+                 \"value\": \"$valueDescripcion\"\n  }  ,\n   { \n      \"key\": \"dc.description.abstract\",\n     
+                  \"value\": \"$valueResumen\"\n  }  ,\n {   \n      \"key\": \"dc.title\",\n     
+                   \"value\": \"$valueTitulo\"\n}]\n\n";
 
             $headers = array('Content-Type: application/json', 'Accept: application/json', "rest-dspace-token: " . $token);
 
@@ -403,7 +411,7 @@ class ItemController extends Controller
      * Permite modificar los metadatos de un Item
      * @return bool|string
      */
-    public function actionActualizarMetadatosItem()//Probar Postman
+    public function actionActualizarMetadatosItem()
     {
         if (Yii::$app->request->isPut) {
             $body = Yii::$app->request->getRawBody();
@@ -448,10 +456,10 @@ class ItemController extends Controller
      * Permite actualizar el archivo, subir el archivo
      * @return bool|string
      */
-    public function actionActualizarDatosBitstream()
+    public function actionActualizarDatosBitstream()//no ha funcionado
     {
         if (Yii::$app->request->isPut) {
-            $body = $_REQUEST;
+            $body = $_POST;
 
             $prefijo = '/rest/bitstreams/';
             $host = ConfiguracionDspace::find()->where("clave='host'")->one()->valor;
@@ -461,19 +469,18 @@ class ItemController extends Controller
             $id = $body['id'];
             $final = '/data';
 
-            $name = $body['name'];//nombre del archivo sin espacios
-            $params = "?name=$name";
-            $url = $host . ':' . $puerto . $prefijo . $id . $final . $params;
+            $file = $_FILES['file']['tmp_name'];//camino temporal al archivo
+            $name = $_FILES['file']['name'];//nombre original del archivo
+            $filename = Item::RemplazarCaracteres("$name");
 
-            $path = $body['path'];
-            $file = new CURLFILE("$path");
+            $url = $host . ':' . $puerto . $prefijo . $id . $final;
 
             $headers = array("Content-Type: application/json", 'Accept: application/json', "rest-dspace-token: " . $token);
 
             $curl = curl_init($url);
             $options = array(
                 CURLOPT_CUSTOMREQUEST => "PUT",
-                CURLOPT_POSTFIELDS => array('file'=> $file,'name' => $name),
+                CURLOPT_POSTFIELDS => array('file'=> new CURLFile("$file"), 'name' => "$filename"),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPHEADER => $headers
             );
@@ -495,7 +502,7 @@ class ItemController extends Controller
      * Permite eliminar un Item
      * @return bool|string
      */
-    public function actionDeleteItem()//probar postman
+    public function actionDeleteItem()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();
@@ -506,8 +513,8 @@ class ItemController extends Controller
             $puerto = ConfiguracionDspace::find()->where("clave='puerto'")->one()->valor;
 
             $token = $body['token'];
-            $id = $body['id'];
-            $url = $host . ':' . $puerto . $prefijo . $id;
+            $idItem = $body['idItem'];
+            $url = $host . ':' . $puerto . $prefijo . $idItem;
 
             $headers = array("Content-Type: application/json", "Accept: application/json", "rest-dspace-token: " . $token);
 
@@ -529,7 +536,7 @@ class ItemController extends Controller
      * Permite eliminar los datos de un Item
      * @return bool|string
      */
-    public function actionDeleteMetadatosDeItem()//probar en postman
+    public function actionDeleteMetadatosDeItem()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();
@@ -602,7 +609,7 @@ class ItemController extends Controller
      * Permite eliminar un Bitstream
      * @return bool|string
      */
-    public function actionDeleteBitstream()//probar postman
+    public function actionDeleteBitstream()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();
@@ -636,7 +643,7 @@ class ItemController extends Controller
      * Permite eliminar las políticas de un Bitstream
      * @return bool|string
      */
-    public function actionDeleteBitstreamPolicy()//probar en postman
+    public function actionDeleteBitstreamPolicy()
     {
         if (Yii::$app->request->isDelete) {
             $body = Yii::$app->request->getRawBody();
